@@ -2,9 +2,6 @@
 
 Confronto empirico tra un database vettoriale puro (ChromaDB), un approccio di ricerca ibrida (vettoriale + BM25) e l'integrazione di un Reranker su documentazione tecnica AWS VPC.
 
-**Corso**: Architetture Dati — Progetto Universitario  
-**Stato**: 🟢 Completato con Integrazione Reranker (Tag `v0.5.0-advanced`)  
-
 ---
 
 ## 📌 Descrizione del Progetto
