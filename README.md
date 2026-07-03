@@ -166,11 +166,3 @@ Di seguito sono riportati i risultati complessivi nel confronto con il **Jina Re
 1. **Incremento delle Metriche**: L'applicazione di Jina Reranker v3 determina incrementi notevoli e trasversali su tutti i metodi di ricerca. L'accuratezza NDCG@10 migliora del **+31.8%** per BM25, del **+20.9%** per Vector-only e del **+18.1%** per l'approccio ibrido, che tocca il valore massimo di **0.7274**.
 2. **Posizionamento dei Risultati (MRR)**: Anche l'MRR (Mean Reciprocal Rank) subisce un salto significativo, dimostrando che le risposte più pertinenti vengono spinte in cima alla graduatoria.
 3. **Trade-off di Latenza**: A fronte del netto miglioramento qualitativo, l'overhead introdotto dalle chiamate API di rete al Reranker remoto porta i tempi di risposta a circa **1.1 - 1.4 secondi**. In scenari reali, la scelta della pipeline a due stadi dipende dai vincoli operativi del sistema (tempo reale vs precisione assoluta).
-
-Per un report scientifico e approfondito su tutti i benchmark, leggi il documento [eval_results.md](file:///Users/mattianessi/Downloads/archi%20dati/report/figures/eval_results.md).
-
----
-
-## 📄 Licenza
-
-Questo progetto è distribuito sotto Licenza MIT.
