@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Semantic & Hybrid Search Console</title>
+    <!-- Google Fonts: Outfit per titoli, Inter per il corpo del testo -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Header minimalista -->
+        <header class="main-header">
+            <div class="brand">
+                <h1>Semantic & Hybrid Search</h1>
+                <p class="subtitle">Search and retrieval interface for document corpus</p>
+            </div>
+            
+            <!-- Indicatori di stato minimali -->
+            <div id="stats-panel" class="system-status">
+                <span class="status-indicator">
+                    <span class="status-dot"></span>
+                    <span class="status-label">Embedder:</span>
+                    <span id="stat-embedder" class="status-value">-</span>
+                </span>
+                <span class="status-divider">|</span>
+                <span class="status-indicator">
+                    <span class="status-label">Dataset:</span>
+                    <span id="stat-dataset" class="status-value">-</span>
+                </span>
+                <span class="status-divider">|</span>
+                <span class="status-indicator">
+                    <span class="status-label">Cache:</span>
+                    <span id="stat-loaded" class="status-value">-</span>
+                </span>
+            </div>
+        </header>
+
+        <main class="search-layout">
+            <!-- Pannello di Controllo (Laterale o superiore) -->
+            <aside class="control-panel">
+                <form id="search-form" onsubmit="event.preventDefault(); executeSearch();">
+                    <div class="control-section">
+                        <h2>Parametri di Ricerca</h2>
+                        <!-- Selezione Dataset -->
+                        <div class="form-group">
+                            <label for="dataset-select">Dataset</label>
+                            <div class="select-wrapper">
+                                <select id="dataset-select" onchange="onDatasetChange()">
+                                    <!-- Popolato dinamicamente da JS -->
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- Dimensione Database -->
+                        <div class="form-group">
+                            <label for="chunk-size-select">Database (Chunk Size)</label>
+                            <div class="select-wrapper">
+                                <select id="chunk-size-select" onchange="onChunkSizeChange()">
+                                    <!-- Popolato dinamicamente da JS -->
+                                </select>
+                            </div>
+                            <div class="db-status-row">
+                                <span id="db-status-badge" class="db-status-badge">Verifica...</span>
+                            </div>
+                        </div>
+
+                        <!-- Strategia di Ricerca -->
+                        <div class="form-group">
+                            <label for="strategy-select">Strategia di Ricerca</label>
+                            <div class="select-wrapper">
+                                <select id="strategy-select" onchange="toggleAlphaSlider()">
+                                    <option value="hybrid-rrf" selected>Hybrid Search (RRF)</option>
+                                    <option value="vector-only">Vector Search (Dense)</option>
+                                    <option value="bm25-only">BM25 Search (Sparse)</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- Parametro Alpha (RRF) -->
+                        <div id="alpha-group" class="form-group">
+                            <div class="label-row">
+                                <label for="alpha-slider">Peso Vettoriale (Alpha)</label>
+                                <span id="alpha-value" class="value-display">0.50</span>
+                            </div>
+                            <input 
+                                type="range" 
+                                id="alpha-slider" 
+                                min="0" 
+                                max="1" 
+                                step="0.05" 
+                                value="0.5" 
+                                oninput="updateAlphaLabel(this.value)"
+                            >
+                            <div class="slider-labels">
+                                <span>Sparse (0.0)</span>
+                                <span>Dense (1.0)</span>
+                            </div>
+                        </div>
+
+                        <!-- Risultati Top K -->
+                        <div class="form-group">
+                            <label for="k-select">Risultati Max (K)</label>
+                            <div class="select-wrapper">
+                                <select id="k-select">
+                                    <option value="3">Top 3</option>
+                                    <option value="5">Top 5</option>
+                                    <option value="10" selected>Top 10</option>
+                                    <option value="15">Top 15</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- Reranking Toggle -->
+                        <div class="form-group rerank-toggle-group">
+                            <label class="checkbox-container">
+                                <input type="checkbox" id="use-rerank-checkbox">
+                                <span class="checkbox-label">Abilita Reranking (Jina v3)</span>
+                            </label>
+                            <span class="field-helper-desc">Riorodina i Top-K con Cross-Encoder (richiede ~1s di latenza API).</span>
+                        </div>
+                    </div>
+                </form>
+            </aside>
+
+            <!-- Sezione Principale: Input e Risultati -->
+            <section class="main-content">
+                <!-- Box di input principale -->
+                <div class="search-input-wrapper">
+                    <textarea 
+                        id="query-input" 
+                        placeholder="Fai una domanda o inserisci una chiave di ricerca..." 
+                        required 
+                        autofocus
+                        onkeydown="if(event.key === 'Enter' && !event.shiftKey) { event.preventDefault(); executeSearch(); }"
+                    ></textarea>
+                    <div class="input-actions">
+                        <span class="keyboard-hint">Premi Invio per cercare</span>
+                        <button type="submit" form="search-form" id="search-btn" class="btn btn-primary">
+                            Cerca
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Suggerimenti di query di esempio -->
+                <div id="example-queries-container" class="example-queries-container hidden">
+                    <span class="example-label">Suggerimenti:</span>
+                    <div id="example-queries-list" class="example-queries-list">
+                        <!-- Popolato dinamicamente da JS -->
+                    </div>
+                </div>
+
+                <!-- Barra dei Risultati -->
+                <div class="results-header">
+                    <h2>Risultati</h2>
+                    <span id="results-count" class="results-count">-</span>
+                </div>
+
+                <!-- Stato di caricamento -->
+                <div id="loader" class="loader hidden">
+                    <div class="progress-bar">
+                        <div class="progress-bar-value"></div>
+                    </div>
+                    <p id="loader-sub">Esecuzione della query in corso...</p>
+                </div>
+
+                <!-- Errore -->
+                <div id="error-card" class="error-message hidden">
+                    <div class="error-title">Errore di ricerca</div>
+                    <p id="error-message-text">Dettagli dell'errore...</p>
+                </div>
+
+                <!-- Contenitore Risultati -->
+                <div id="results-container" class="results-container">
+                    <div class="empty-state">
+                        <p>Inserisci una domanda per consultare i database lessicali e semantici.</p>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <footer class="main-footer">
+            <p>Vector DB vs Hybrid Search &bull; Progetto Architettura Dati</p>
+        </footer>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+</body>
+</html>

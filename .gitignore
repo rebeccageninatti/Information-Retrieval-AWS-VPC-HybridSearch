@@ -1,0 +1,41 @@
+# macOS
+.DS_Store
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+*.egg-info/
+*.egg
+dist/
+build/
+.eggs/
+
+# Virtual environments
+.venv/
+
+# uv
+.python-version
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Data files (troppo grandi per git)
+data/raw/
+data/processed/
+data/chunks/
+data/embeddings/
+data/results/
+data/indices/
+
+# ChromaDB storage
+chroma_db/
+
+# Environment variables
+.env
+.env.local
