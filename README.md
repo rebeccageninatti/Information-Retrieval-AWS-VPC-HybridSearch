@@ -63,15 +63,11 @@ archi dati/
     ├── generate_csv.py              # Esportazione in CSV delle metriche per categoria
     └── generate_presentation_plots.py # Generazione grafici minimal per la presentazione Canva
 ```
-
-Per i dettagli formali sul piano di sviluppo, consulta il file [PLAN.md](file:///Users/mattianessi/Downloads/archi%20dati/PLAN.md).
-
 ---
 
 ## 🚀 Guida di Esecuzione (Quick Start)
 
-Tutte le esecuzioni Python devono essere anticipate da `uv run` per garantire l'uso del virtual environment configurato in [pyproject.toml](file:///Users/mattianessi/Downloads/archi%20dati/pyproject.toml).
-
+Tutte le esecuzioni Python devono essere anticipate da `uv run` per garantire l'uso del virtual environment configurato in [pyproject.toml].
 ### 1. Setup e Installazione
 Clona il repository ed esegui la sincronizzazione delle dipendenze:
 ```bash
